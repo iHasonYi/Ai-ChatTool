@@ -6090,3 +6090,155 @@ html.gold-silver .chat-item.active {
         transition: none;
     }
 }
+
+/* ============================================================================
+   v1.5.3 — Clean Collapsed Sidebar Rail
+   Fixes the collapsed workspace rail by hiding secondary sidebar content and
+   enforcing a compact width after older visual layers.
+   ============================================================================ */
+
+:root {
+    --sidebar-collapsed-width: 72px;
+}
+
+.sidebar.is-collapsed {
+    width: var(--sidebar-collapsed-width) !important;
+    min-width: var(--sidebar-collapsed-width) !important;
+    max-width: var(--sidebar-collapsed-width) !important;
+    flex: 0 0 var(--sidebar-collapsed-width) !important;
+    padding: 12px 8px !important;
+    overflow: hidden !important;
+}
+
+.sidebar.is-collapsed .sidebar-top {
+    position: relative;
+    width: 100%;
+    min-height: 42px;
+    margin-bottom: 14px;
+    padding: 0;
+    justify-content: center;
+}
+
+.sidebar.is-collapsed .brand {
+    width: 42px;
+    justify-content: center;
+}
+
+.sidebar.is-collapsed .brand-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+}
+
+.sidebar.is-collapsed .brand-text,
+.sidebar.is-collapsed .new-chat-button > span:not(.new-chat-icon),
+.sidebar.is-collapsed .sidebar-nav-item > span:not(.nav-icon),
+.sidebar.is-collapsed .section-title,
+.sidebar.is-collapsed .sidebar-section,
+.sidebar.is-collapsed .chat-list,
+.sidebar.is-collapsed .nai-search-wrap,
+.sidebar.is-collapsed .nai-sidebar-tools,
+.sidebar.is-collapsed .sidebar-search,
+.sidebar.is-collapsed .action-content {
+    display: none !important;
+}
+
+.sidebar.is-collapsed .sidebar-collapse-button {
+    position: absolute;
+    top: 42px;
+    right: 50%;
+    width: 28px;
+    height: 28px;
+    transform: translate(50%, 0) !important;
+    z-index: 5;
+    border-radius: 9px;
+    background: var(--surface-secondary);
+    border-color: var(--border-strong);
+    color: var(--text-secondary);
+    box-shadow: var(--shadow-xs);
+}
+
+.sidebar.is-collapsed .new-chat-button {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 28px auto 12px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    border-radius: 13px !important;
+}
+
+.sidebar.is-collapsed .new-chat-icon {
+    width: 24px;
+    height: 24px;
+    margin: 0;
+}
+
+.sidebar.is-collapsed .sidebar-nav {
+    width: 100%;
+    margin: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.sidebar.is-collapsed .sidebar-nav-item {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    border-radius: 12px !important;
+}
+
+.sidebar.is-collapsed .sidebar-nav-item .nav-icon {
+    width: 100%;
+    font-size: 17px;
+    text-align: center;
+}
+
+.sidebar.is-collapsed .sidebar-bottom {
+    margin-top: auto;
+    padding-top: 10px;
+    gap: 5px;
+    align-items: center;
+}
+
+.sidebar.is-collapsed .sidebar-action,
+.sidebar.is-collapsed .nai-tool-button {
+    width: 44px !important;
+    min-width: 44px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    border-radius: 12px !important;
+}
+
+.sidebar.is-collapsed .action-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.sidebar.is-collapsed .mobile-close {
+    display: none !important;
+}
+
+@media (max-width: 900px) {
+    .sidebar.is-collapsed {
+        width: var(--sidebar-width) !important;
+        min-width: var(--sidebar-width) !important;
+        max-width: var(--sidebar-width) !important;
+        flex: 0 0 var(--sidebar-width) !important;
+        padding: 18px !important;
+    }
+}
+
