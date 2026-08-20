@@ -4730,7 +4730,7 @@ function setupNovaThemeEngine() {
         const style = document.createElement("style");
         style.id = "naiWorkspaceStyles";
         style.textContent = `
-            .nai-sidebar-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+            .nai-sidebar-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.sidebar.is-collapsed .nai-sidebar-tools{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;margin:10px 0}.sidebar.is-collapsed .nai-sidebar-tools .nai-tool-button{width:44px;min-width:44px;height:42px;min-height:42px;padding:0;justify-content:center;white-space:nowrap;overflow:hidden;border-radius:12px}
             .nai-tool-button{border:1px solid var(--border-color,#2b2f3a);background:var(--surface-2,#171a22);color:var(--text-primary,#fff);border-radius:12px;padding:10px 9px;cursor:pointer;font:inherit;font-size:12px;display:flex;align-items:center;justify-content:center;gap:7px;transition:.2s}
             .nai-tool-button:hover{border-color:rgba(139,92,246,.65);transform:translateY(-1px);background:rgba(139,92,246,.08)}
             .nai-search-wrap{padding:0 2px 10px}
