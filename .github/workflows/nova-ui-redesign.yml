@@ -1,0 +1,417 @@
+name: Nova AI UI redesign
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  apply-ui:
+    if: ${{ !contains(github.event.head_commit.message, '[nova-ui]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Apply premium workspace UI
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('style.css')
+          css = path.read_text(encoding='utf-8')
+          marker = '/* NOVA UI REDESIGN v1.7.0 */'
+
+          if marker in css:
+              print('UI redesign already present')
+              raise SystemExit(0)
+
+          redesign = r'''
+
+/* NOVA UI REDESIGN v1.7.0 */
+
+:root {
+    --sidebar-width: 248px;
+    --topbar-height: 62px;
+    --radius-md: 14px;
+    --radius-lg: 18px;
+    --radius-xl: 22px;
+}
+
+html[data-theme="dark"] {
+    --bg: #08090d;
+    --bg-deep: #05060a;
+    --surface: rgba(15, 17, 23, 0.92);
+    --surface-solid: #0d0f14;
+    --surface-secondary: #14171e;
+    --surface-tertiary: #1b1f28;
+    --surface-hover: #20242e;
+    --text: #f7f7f5;
+    --text-secondary: #a7abb5;
+    --text-muted: #6f7480;
+    --border: rgba(255,255,255,.07);
+    --border-strong: rgba(255,255,255,.12);
+    --primary: #d8a63c;
+    --primary-hover: #efc05a;
+    --primary-soft: rgba(216,166,60,.12);
+    --primary-glow: rgba(216,166,60,.20);
+}
+
+html[data-theme="gold-silver"] {
+    --bg: #0b0b0c;
+    --bg-deep: #060607;
+    --surface: rgba(20,20,21,.94);
+    --surface-solid: #111112;
+    --surface-secondary: #181819;
+    --surface-tertiary: #242426;
+    --surface-hover: #2b2b2d;
+    --text: #f7f6f2;
+    --text-secondary: #b8b6b0;
+    --text-muted: #77756f;
+    --border: rgba(224,193,124,.10);
+    --border-strong: rgba(224,193,124,.18);
+    --primary: #d9ad4a;
+    --primary-hover: #f0ca6a;
+    --primary-soft: rgba(217,173,74,.12);
+    --primary-glow: rgba(217,173,74,.20);
+}
+
+html.light {
+    --primary: #b88724;
+    --primary-hover: #9d711d;
+    --primary-soft: rgba(184,135,36,.09);
+    --primary-glow: rgba(184,135,36,.15);
+}
+
+body {
+    background:
+        radial-gradient(circle at 68% -10%, var(--primary-soft), transparent 30%),
+        radial-gradient(circle at 15% 100%, rgba(255,255,255,.025), transparent 28%),
+        var(--bg);
+}
+
+.sidebar {
+    padding: 16px 14px;
+    background: linear-gradient(180deg, rgba(12,13,17,.98), rgba(9,10,13,.96));
+    border-right: 1px solid var(--border);
+    border-left: 0;
+}
+
+.sidebar-top {
+    margin-bottom: 18px;
+    padding: 0 4px;
+}
+
+.brand-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #f1f1ed, #b8b9bc);
+    color: #111;
+    box-shadow: 0 8px 24px rgba(255,255,255,.08);
+}
+
+.brand-text strong { font-size: 16px; }
+.brand-text small { font-size: 9px; }
+
+.new-chat-button {
+    min-height: 44px;
+    border: 1px solid var(--border-strong);
+    background: linear-gradient(180deg, #1d1e21, #141518);
+    box-shadow: none;
+    color: var(--text);
+}
+
+.new-chat-button:hover { box-shadow: 0 12px 28px rgba(0,0,0,.25); }
+.new-chat-icon { background: rgba(255,255,255,.08); }
+
+.sidebar-nav { gap: 3px; margin-top: 16px; }
+
+.sidebar-nav-item {
+    min-height: 39px;
+    padding: 8px 10px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    font-size: 11px;
+}
+
+.sidebar-nav-item.active {
+    background: linear-gradient(90deg, var(--primary-soft), rgba(255,255,255,.025));
+    border-color: rgba(216,166,60,.14);
+    color: var(--text);
+}
+
+.sidebar-nav-item.active .nav-icon { color: var(--primary); }
+.sidebar-section { margin-top: 20px; }
+.section-title { padding: 0 7px 9px; }
+.chat-item { padding: 8px; border-radius: 10px; }
+.chat-item.active { background: rgba(216,166,60,.08); border-color: rgba(216,166,60,.12); }
+.sidebar-bottom { margin-top: 10px; padding-top: 10px; }
+
+.main-content { position: relative; background: transparent; }
+
+.topbar {
+    height: var(--topbar-height);
+    padding: 0 20px;
+    background: rgba(8,9,13,.74);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(22px);
+}
+
+.topbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.active-model {
+    min-width: 190px;
+    padding: 7px 12px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(20,21,25,.9);
+    box-shadow: 0 10px 30px rgba(0,0,0,.16);
+}
+
+.active-model:hover { border-color: var(--border-strong); background: var(--surface-secondary); }
+.status-dot { width: 7px; height: 7px; box-shadow: 0 0 0 4px rgba(63,199,130,.08); }
+.topbar-right { gap: 7px; }
+
+.theme-switcher-button,
+.workspace-health-button {
+    min-height: 34px;
+    border: 1px solid var(--border-strong);
+    background: rgba(18,19,23,.88);
+    border-radius: 999px;
+}
+
+.workspace-health-button { padding: 0 11px; }
+
+.chat-area {
+    position: relative;
+    padding: 0 24px 210px;
+    background: radial-gradient(circle at 50% 15%, rgba(255,255,255,.025), transparent 32%);
+}
+
+.welcome-screen {
+    width: min(920px, calc(100% - 20px));
+    margin: 0 auto;
+    padding-top: clamp(72px, 12vh, 120px);
+}
+
+.welcome-glow {
+    width: 420px;
+    height: 240px;
+    background: radial-gradient(circle, var(--primary-soft), transparent 68%);
+    opacity: .7;
+    filter: blur(12px);
+}
+
+.welcome-icon {
+    width: 52px;
+    height: 52px;
+    margin-bottom: 18px;
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    background: linear-gradient(145deg, #f4f4f0, #c5c6c8);
+    color: #111;
+    box-shadow: 0 14px 40px rgba(0,0,0,.22);
+}
+
+.welcome-icon-inner { font-size: 22px; }
+
+.welcome-badge {
+    padding: 6px 11px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(255,255,255,.025);
+    color: var(--text-muted);
+    font-size: 10px;
+}
+
+.welcome-screen h1 {
+    max-width: 780px;
+    margin: 16px auto 8px;
+    font-size: clamp(38px, 5vw, 58px);
+    line-height: 1.05;
+    letter-spacing: -2.4px;
+    font-weight: 800;
+}
+
+.welcome-screen h1 span { color: var(--text); }
+
+.welcome-screen > p {
+    max-width: 650px;
+    margin: 0 auto;
+    color: var(--text-secondary);
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.quick-actions { width: min(820px, 100%); margin: 34px auto 0; gap: 10px; }
+
+.quick-card {
+    min-height: 126px;
+    padding: 15px;
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    background: linear-gradient(145deg, rgba(20,21,25,.95), rgba(14,15,18,.9));
+    box-shadow: 0 12px 30px rgba(0,0,0,.10);
+}
+
+.quick-card:hover {
+    border-color: rgba(216,166,60,.28);
+    transform: translateY(-3px);
+    box-shadow: 0 18px 42px rgba(0,0,0,.22);
+}
+
+.quick-card-icon { width: 29px; height: 29px; border-radius: 9px; background: rgba(255,255,255,.07); }
+.quick-card-content strong { font-size: 11px; }
+.quick-card-content small { font-size: 9px; line-height: 1.5; }
+.quick-card-arrow { width: 29px; height: 29px; border-radius: 9px; background: rgba(255,255,255,.07); }
+.welcome-features { margin-top: 18px; }
+.welcome-features span { color: var(--text-muted); font-size: 9px; }
+
+.messages { width: min(920px, 100%); margin: 0 auto; }
+.message-row { margin: 20px 0; }
+
+.user-message,
+.assistant-message {
+    max-width: min(780px, 90%);
+    border-radius: 17px;
+    border: 1px solid var(--border);
+}
+
+.user-message {
+    background: linear-gradient(145deg, rgba(216,166,60,.12), rgba(255,255,255,.035));
+    border-color: rgba(216,166,60,.14);
+}
+
+.assistant-message {
+    background: linear-gradient(145deg, rgba(20,22,27,.96), rgba(14,15,19,.96));
+    box-shadow: 0 14px 38px rgba(0,0,0,.13);
+}
+
+.message-actions button {
+    min-height: 30px;
+    padding: 0 9px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: rgba(255,255,255,.025);
+    color: var(--text-secondary);
+}
+
+.message-actions button:hover {
+    border-color: var(--border-strong);
+    color: var(--text);
+    background: rgba(255,255,255,.06);
+}
+
+.composer-wrapper { bottom: 14px; width: min(850px, calc(100% - 42px)); }
+
+.composer-container {
+    border-radius: 20px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(216,166,60,.45), rgba(255,255,255,.08), rgba(216,166,60,.20));
+    box-shadow: 0 24px 70px rgba(0,0,0,.38);
+}
+
+.composer {
+    min-height: 104px;
+    border: 0;
+    border-radius: 19px;
+    background: rgba(14,15,18,.97);
+}
+
+.composer-top textarea {
+    min-height: 54px;
+    padding: 17px 18px 8px;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.composer-top textarea::placeholder { color: #6e727b; }
+.composer-top textarea:focus { color: var(--text); }
+.composer-bottom { padding: 8px 10px 10px 14px; }
+
+.tool-button {
+    min-width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: rgba(255,255,255,.045);
+    border: 1px solid var(--border);
+}
+
+.tool-button:hover { background: rgba(255,255,255,.08); border-color: var(--border-strong); }
+.input-hint { color: #656973; font-size: 9px; }
+
+.send-button {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f0c65d, #b8831e);
+    color: #111;
+    box-shadow: 0 8px 22px rgba(216,166,60,.22);
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.send-button:hover { transform: translateY(-2px) scale(1.03); filter: brightness(1.06); }
+.send-button:disabled { opacity: .38; filter: grayscale(.6); box-shadow: none; }
+.composer-disclaimer { margin-top: 8px; color: #555962; font-size: 8px; }
+.attachment-preview { margin-bottom: 8px; }
+
+.modal-card {
+    border: 1px solid var(--border-strong);
+    background: rgba(14,15,19,.97);
+    box-shadow: 0 35px 100px rgba(0,0,0,.55);
+    backdrop-filter: blur(24px);
+}
+
+@media (max-width: 1050px) {
+    :root { --sidebar-width: 230px; }
+    .welcome-screen h1 { font-size: 44px; }
+    .quick-actions { grid-template-columns: 1fr; max-width: 520px; }
+}
+
+@media (max-width: 760px) {
+    .sidebar { width: min(300px, 86vw); }
+    .topbar { padding: 0 10px; }
+    .workspace-health-label, .theme-switcher-name, .theme-switcher-chevron { display: none; }
+    .welcome-screen { padding-top: 55px; }
+    .welcome-screen h1 { font-size: 36px; letter-spacing: -1.5px; }
+    .welcome-screen > p { font-size: 12px; }
+    .chat-area { padding-left: 12px; padding-right: 12px; }
+    .composer-wrapper { width: calc(100% - 18px); bottom: 8px; }
+    .input-hint { display: none; }
+    .tool-label { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
+'''
+
+          path.write_text(css + redesign, encoding='utf-8')
+          print('Premium UI appended successfully')
+
+      - name: Commit UI
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add style.css
+          if git diff --cached --quiet; then
+            echo "No CSS changes"
+            exit 0
+          fi
+          git commit -m "Apply premium Nova AI workspace UI [nova-ui]"
+          git push
