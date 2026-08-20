@@ -2,7 +2,8 @@ const STORAGE_KEYS = {
     settings: "ai_chat_settings_v4",
     profiles: "ai_chat_api_profiles_v1",
     chats: "ai_chat_chats_v4",
-    theme: "ai_chat_theme_v4"
+    theme: "ai_chat_theme_v4",
+    sidebarCollapsed: "nova_ai_sidebar_collapsed_v1"
 };
 
 const DEFAULT_SETTINGS = {
@@ -48,6 +49,7 @@ const elements = {
 
     openSidebarButton: document.getElementById("openSidebarButton"),
     closeSidebarButton: document.getElementById("closeSidebarButton"),
+    sidebarCollapseButton: document.getElementById("sidebarCollapseButton"),
 
     newChatButton: document.getElementById("newChatButton"),
     chatList: document.getElementById("chatList"),
@@ -3307,6 +3309,71 @@ function clearComposer() {
     elements.messageInput.focus();
 }
 
+function loadSidebarCollapsed() {
+    return localStorage.getItem(STORAGE_KEYS.sidebarCollapsed) === "true";
+}
+
+function saveSidebarCollapsed(collapsed) {
+    localStorage.setItem(STORAGE_KEYS.sidebarCollapsed, collapsed ? "true" : "false");
+}
+
+function updateSidebarCollapseUI(collapsed) {
+    const sidebar = elements.sidebar;
+    const button = elements.sidebarCollapseButton;
+    if (!sidebar || !button) return;
+
+    sidebar.classList.toggle("is-collapsed", collapsed);
+    button.textContent = collapsed ? "›" : "‹";
+    button.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    button.setAttribute("aria-label", collapsed ? "Expand sidebar" : "Collapse sidebar");
+    button.setAttribute("title", collapsed ? "Expand sidebar" : "Collapse sidebar");
+
+    document.querySelectorAll(".sidebar-nav-item").forEach(item => {
+        const label = item.querySelector(":scope > span:not(.nav-icon)")?.textContent?.trim();
+        if (label) item.setAttribute("title", collapsed ? label : "");
+    });
+
+    if (elements.newChatButton) {
+        elements.newChatButton.setAttribute("title", collapsed ? "New chat" : "");
+    }
+
+    document.querySelectorAll(".sidebar-action").forEach(item => {
+        const label = item.querySelector(".action-content strong")?.textContent?.trim();
+        if (label) item.setAttribute("title", collapsed ? label : "");
+    });
+}
+
+function toggleSidebarCollapsed() {
+    if (window.matchMedia("(max-width: 900px)").matches) return;
+
+    const next = !elements.sidebar?.classList.contains("is-collapsed");
+    updateSidebarCollapseUI(next);
+    saveSidebarCollapsed(next);
+}
+
+function setupSidebarCollapse() {
+    const collapsed = loadSidebarCollapsed();
+    const isMobile = window.matchMedia("(max-width: 900px)").matches;
+    updateSidebarCollapseUI(isMobile ? false : collapsed);
+
+    elements.sidebarCollapseButton?.addEventListener("click", toggleSidebarCollapsed);
+
+    const mediaQuery = window.matchMedia("(max-width: 900px)");
+    const syncResponsiveSidebar = event => {
+        if (event.matches) {
+            elements.sidebar?.classList.remove("is-collapsed");
+        } else {
+            updateSidebarCollapseUI(loadSidebarCollapsed());
+        }
+    };
+
+    if (typeof mediaQuery.addEventListener === "function") {
+        mediaQuery.addEventListener("change", syncResponsiveSidebar);
+    } else {
+        mediaQuery.addListener(syncResponsiveSidebar);
+    }
+}
+
 function openSidebar() {
     elements.sidebar.classList.add(
         "open"
@@ -4262,6 +4329,7 @@ function clearRequestInspectorLogs() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    setupSidebarCollapse();
     setupNovaThemeEngine();
     document.getElementById("closeRequestInspector")?.addEventListener(
         "click",

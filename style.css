@@ -5879,3 +5879,214 @@ html.gold-silver .chat-item.active {
         max-width: 90% !important;
     }
 }
+
+
+/* ==========================================================================
+   v1.5.2 — Click-to-Collapse Sidebar
+   ========================================================================== */
+
+:root {
+    --sidebar-collapsed-width: 76px;
+}
+
+.sidebar {
+    overflow: hidden;
+    transition:
+        width var(--transition-slow),
+        transform var(--transition),
+        background var(--transition-slow),
+        border-color var(--transition),
+        box-shadow var(--transition-slow);
+}
+
+.sidebar-collapse-button {
+    position: absolute;
+    top: 18px;
+    right: 8px;
+    z-index: 3;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 21px;
+    line-height: 1;
+    box-shadow: var(--shadow-xs);
+}
+
+.sidebar-collapse-button:hover {
+    background: var(--surface-secondary);
+    border-color: var(--border-strong);
+    color: var(--text);
+    transform: none;
+}
+
+.sidebar.is-collapsed {
+    width: var(--sidebar-collapsed-width);
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.sidebar.is-collapsed .sidebar-top {
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.sidebar.is-collapsed .brand-text,
+.sidebar.is-collapsed .new-chat-button > span:not(.new-chat-icon),
+.sidebar.is-collapsed .sidebar-nav-item > span:not(.nav-icon),
+.sidebar.is-collapsed .section-title-label,
+.sidebar.is-collapsed .sidebar-search,
+.sidebar.is-collapsed .chat-item-title,
+.sidebar.is-collapsed .chat-item-actions,
+.sidebar.is-collapsed .action-content {
+    display: none;
+}
+
+.sidebar.is-collapsed .brand {
+    justify-content: center;
+}
+
+.sidebar.is-collapsed .brand-icon {
+    width: 42px;
+    height: 42px;
+}
+
+.sidebar.is-collapsed .sidebar-collapse-button {
+    position: absolute;
+    top: 62px;
+    right: 50%;
+    transform: translateX(50%);
+}
+
+.sidebar.is-collapsed .new-chat-button {
+    width: 48px;
+    min-height: 48px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0;
+    gap: 0;
+    border-radius: 14px;
+}
+
+.sidebar.is-collapsed .new-chat-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.sidebar.is-collapsed .sidebar-nav {
+    margin-top: 18px;
+}
+
+.sidebar.is-collapsed .sidebar-nav-item {
+    width: 48px;
+    min-height: 44px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    padding: 0;
+    gap: 0;
+    border-radius: 12px;
+}
+
+.sidebar.is-collapsed .nav-icon {
+    width: auto;
+    font-size: 17px;
+}
+
+.sidebar.is-collapsed .sidebar-section {
+    margin-top: 12px;
+}
+
+.sidebar.is-collapsed .section-title {
+    justify-content: center;
+    padding: 7px 0;
+}
+
+.sidebar.is-collapsed .section-title > .small-icon-button {
+    display: none;
+}
+
+.sidebar.is-collapsed .chat-list {
+    gap: 5px;
+}
+
+.sidebar.is-collapsed .chat-item {
+    width: 48px;
+    min-height: 42px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    padding: 0;
+    gap: 0;
+    border-radius: 12px;
+}
+
+.sidebar.is-collapsed .chat-item-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.sidebar.is-collapsed .sidebar-bottom {
+    align-items: center;
+}
+
+.sidebar.is-collapsed .sidebar-action {
+    width: 48px;
+    min-height: 44px;
+    justify-content: center;
+    padding: 0;
+    gap: 0;
+    border-radius: 12px;
+}
+
+.sidebar.is-collapsed .action-icon {
+    width: 30px;
+    height: 30px;
+}
+
+.sidebar.is-collapsed .mobile-close {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .sidebar-collapse-button {
+        display: none;
+    }
+
+    .sidebar.is-collapsed {
+        width: var(--sidebar-width);
+        padding: 18px;
+    }
+
+    .sidebar.is-collapsed .brand-text,
+    .sidebar.is-collapsed .new-chat-button > span:not(.new-chat-icon),
+    .sidebar.is-collapsed .sidebar-nav-item > span:not(.nav-icon),
+    .sidebar.is-collapsed .section-title-label,
+    .sidebar.is-collapsed .sidebar-search,
+    .sidebar.is-collapsed .chat-item-title,
+    .sidebar.is-collapsed .chat-item-actions,
+    .sidebar.is-collapsed .action-content {
+        display: initial;
+    }
+
+    .sidebar.is-collapsed .new-chat-button,
+    .sidebar.is-collapsed .sidebar-nav-item,
+    .sidebar.is-collapsed .chat-item,
+    .sidebar.is-collapsed .sidebar-action {
+        width: 100%;
+        min-height: initial;
+        margin-left: 0;
+        margin-right: 0;
+        padding: initial;
+        gap: initial;
+        justify-content: initial;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sidebar {
+        transition: none;
+    }
+}
