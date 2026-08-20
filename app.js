@@ -4262,6 +4262,7 @@ function clearRequestInspectorLogs() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    setupNovaThemeEngine();
     document.getElementById("closeRequestInspector")?.addEventListener(
         "click",
         closeRequestInspector
@@ -4301,6 +4302,104 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updateWorkspaceHealthIndicator();
 });
+
+
+const NOVA_THEME_KEY = "nova_ai_theme_v2";
+const NOVA_THEME_VALUES = new Set(["dark", "light", "gold-silver"]);
+
+function getSavedNovaTheme() {
+    const saved = localStorage.getItem(NOVA_THEME_KEY);
+    if (NOVA_THEME_VALUES.has(saved)) return saved;
+
+    const legacy = localStorage.getItem("nova_ai_theme");
+    if (legacy === "light" || legacy === "dark") return legacy;
+
+    return document.documentElement.classList.contains("light") ? "light" : "dark";
+}
+
+function applyNovaTheme(theme, persist = true) {
+    const nextTheme = NOVA_THEME_VALUES.has(theme) ? theme : "dark";
+    const root = document.documentElement;
+
+    root.dataset.theme = nextTheme;
+    root.classList.toggle("light", nextTheme === "light");
+    root.classList.toggle("gold-silver", nextTheme === "gold-silver");
+
+    if (persist) {
+        localStorage.setItem(NOVA_THEME_KEY, nextTheme);
+        localStorage.setItem("nova_ai_theme", nextTheme);
+    }
+
+    updateNovaThemeUI(nextTheme);
+}
+
+function updateNovaThemeUI(theme) {
+    const name = document.getElementById("themeSwitcherName");
+    const swatch = document.getElementById("themeSwitcherSwatch");
+    const menu = document.getElementById("themeModeMenu");
+
+    const labels = {
+        dark: "Dark",
+        light: "Light",
+        "gold-silver": "Gold & Silver"
+    };
+
+    if (name) name.textContent = labels[theme] || "Dark";
+    if (swatch) {
+        swatch.className = `theme-switcher-swatch theme-swatch-${theme}`;
+    }
+
+    document.querySelectorAll("[data-theme-choice]").forEach(option => {
+        const active = option.dataset.themeChoice === theme;
+        option.classList.toggle("active", active);
+        option.setAttribute("aria-selected", active ? "true" : "false");
+    });
+
+    if (menu) {
+        menu.classList.remove("open");
+    }
+
+    document.getElementById("themeModeButton")?.setAttribute("aria-expanded", "false");
+}
+
+function toggleNovaThemeMenu(force) {
+    const menu = document.getElementById("themeModeMenu");
+    const button = document.getElementById("themeModeButton");
+    if (!menu || !button) return;
+
+    const open = typeof force === "boolean" ? force : !menu.classList.contains("open");
+    menu.classList.toggle("open", open);
+    button.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+function setupNovaThemeEngine() {
+    const current = getSavedNovaTheme();
+    applyNovaTheme(current, false);
+
+    document.getElementById("themeModeButton")?.addEventListener("click", event => {
+        event.stopPropagation();
+        toggleNovaThemeMenu();
+    });
+
+    document.querySelectorAll("[data-theme-choice]").forEach(option => {
+        option.addEventListener("click", () => {
+            applyNovaTheme(option.dataset.themeChoice);
+            if (typeof showToast === "function") {
+                showToast(`${option.textContent.trim().split(/\s+/).slice(0, 3).join(" ")} theme applied.`);
+            }
+        });
+    });
+
+    document.addEventListener("click", event => {
+        if (!document.getElementById("themeSwitcher")?.contains(event.target)) {
+            toggleNovaThemeMenu(false);
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") toggleNovaThemeMenu(false);
+    });
+}
 
 (function setupUniversalWorkspace() {
     "use strict";

@@ -5055,3 +5055,321 @@ body.inspector-open{overflow:hidden}
         display: none;
     }
 }
+
+
+/* ==========================================================================
+   v1.5.0 — Dark / Light / Gold & Silver Theme System
+   ========================================================================== */
+
+:root {
+    --nova-bg: #0b0d12;
+    --nova-bg-elevated: #11141b;
+    --nova-panel: #151922;
+    --nova-panel-strong: #1a1f29;
+    --nova-surface: rgba(255,255,255,.045);
+    --nova-surface-strong: rgba(255,255,255,.075);
+    --nova-border: rgba(255,255,255,.095);
+    --nova-border-strong: rgba(255,255,255,.15);
+    --nova-text: #f4f6fa;
+    --nova-text-soft: #d7dbe3;
+    --nova-muted: #9299a8;
+    --nova-accent: #8b7cff;
+    --nova-accent-soft: rgba(139,124,255,.14);
+    --nova-shadow: rgba(0,0,0,.28);
+    --nova-code-bg: #0a0c11;
+    --nova-input-bg: rgba(255,255,255,.055);
+}
+
+:root[data-theme="light"],
+:root.light {
+    --nova-bg: #f5f6f8;
+    --nova-bg-elevated: #ffffff;
+    --nova-panel: #ffffff;
+    --nova-panel-strong: #f8f9fb;
+    --nova-surface: rgba(20,25,35,.045);
+    --nova-surface-strong: rgba(20,25,35,.075);
+    --nova-border: rgba(20,25,35,.105);
+    --nova-border-strong: rgba(20,25,35,.16);
+    --nova-text: #171a20;
+    --nova-text-soft: #343943;
+    --nova-muted: #737985;
+    --nova-accent: #6555d8;
+    --nova-accent-soft: rgba(101,85,216,.10);
+    --nova-shadow: rgba(20,25,35,.12);
+    --nova-code-bg: #eef0f4;
+    --nova-input-bg: rgba(20,25,35,.045);
+}
+
+:root[data-theme="gold-silver"],
+:root.gold-silver {
+    --nova-bg: #0b0b0c;
+    --nova-bg-elevated: #111112;
+    --nova-panel: #151515;
+    --nova-panel-strong: #1b1b1c;
+    --nova-surface: rgba(255,255,255,.045);
+    --nova-surface-strong: rgba(255,255,255,.075);
+    --nova-border: rgba(220,205,171,.18);
+    --nova-border-strong: rgba(220,205,171,.31);
+    --nova-text: #f5f2ea;
+    --nova-text-soft: #ded9ce;
+    --nova-muted: #a8a39a;
+    --nova-accent: #d6ae5d;
+    --nova-accent-soft: rgba(214,174,93,.14);
+    --nova-shadow: rgba(0,0,0,.36);
+    --nova-code-bg: #0a0a0b;
+    --nova-input-bg: rgba(255,255,255,.052);
+}
+
+:root[data-theme="light"] body,
+:root.light body,
+:root[data-theme="gold-silver"] body,
+:root.gold-silver body {
+    background: var(--nova-bg);
+    color: var(--nova-text);
+}
+
+body,
+.app,
+.workspace,
+.main-content,
+.chat-container,
+.sidebar,
+.topbar,
+.composer,
+.message-composer,
+.settings-modal,
+.modal-content,
+.panel,
+.card,
+.dropdown,
+.popover {
+    color: var(--nova-text);
+}
+
+:root[data-theme="light"] body,
+:root.light body {
+    background:
+        radial-gradient(circle at 10% 0%, rgba(101,85,216,.055), transparent 30%),
+        radial-gradient(circle at 90% 20%, rgba(120,130,150,.055), transparent 28%),
+        var(--nova-bg);
+}
+
+:root[data-theme="gold-silver"] body,
+:root.gold-silver body {
+    background:
+        radial-gradient(circle at 15% 0%, rgba(214,174,93,.09), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(196,201,207,.065), transparent 30%),
+        linear-gradient(135deg, #090909, #101011 52%, #0a0a0b);
+}
+
+:root[data-theme="gold-silver"] .active-model,
+:root.gold-silver .active-model,
+:root[data-theme="gold-silver"] .workspace-health-button:hover,
+:root.gold-silver .workspace-health-button:hover {
+    border-color: rgba(214,174,93,.38);
+}
+
+:root[data-theme="gold-silver"] button:hover,
+:root.gold-silver button:hover {
+    border-color: rgba(214,174,93,.30);
+}
+
+:root[data-theme="gold-silver"] .workspace-health-dot.is-ready,
+:root.gold-silver .workspace-health-dot.is-ready {
+    background: #d6ae5d;
+    box-shadow: 0 0 0 3px rgba(214,174,93,.12), 0 0 14px rgba(214,174,93,.18);
+}
+
+:root[data-theme="gold-silver"] .workspace-health-dot.is-warning,
+:root.gold-silver .workspace-health-dot.is-warning {
+    background: #c9cdd3;
+    box-shadow: 0 0 0 3px rgba(201,205,211,.11);
+}
+
+:root[data-theme="gold-silver"] .theme-switcher-button,
+:root.gold-silver .theme-switcher-button {
+    background: linear-gradient(135deg, rgba(214,174,93,.10), rgba(201,205,211,.07));
+}
+
+.theme-switcher {
+    position: relative;
+    z-index: 40;
+}
+
+.theme-switcher-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 0 10px;
+    border: 1px solid var(--nova-border);
+    border-radius: 999px;
+    background: var(--nova-surface);
+    color: var(--nova-text);
+    cursor: pointer;
+    font: inherit;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.theme-switcher-button:hover {
+    transform: translateY(-1px);
+    border-color: var(--nova-border-strong);
+}
+
+.theme-switcher-name {
+    max-width: 96px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 750;
+}
+
+.theme-switcher-chevron {
+    color: var(--nova-muted);
+    font-size: 12px;
+}
+
+.theme-switcher-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,.25);
+    background: linear-gradient(135deg, #171a20, #656b76);
+}
+
+.theme-swatch-dark {
+    background: linear-gradient(135deg, #090a0d 0 48%, #8b7cff 49% 100%);
+}
+
+.theme-swatch-light {
+    border-color: rgba(20,25,35,.18);
+    background: linear-gradient(135deg, #ffffff 0 48%, #6555d8 49% 100%);
+}
+
+.theme-swatch-gold-silver {
+    background: linear-gradient(135deg, #d6ae5d 0 48%, #c9cdd3 49% 100%);
+}
+
+.theme-switcher-menu {
+    position: absolute;
+    top: calc(100% + 9px);
+    right: 0;
+    width: 238px;
+    padding: 7px;
+    border: 1px solid var(--nova-border-strong);
+    border-radius: 16px;
+    background: color-mix(in srgb, var(--nova-panel) 94%, transparent);
+    box-shadow: 0 20px 55px var(--nova-shadow);
+    backdrop-filter: blur(18px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-5px) scale(.98);
+    transform-origin: top right;
+    transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+}
+
+.theme-switcher-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+}
+
+.theme-option {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 30px 1fr 18px;
+    align-items: center;
+    gap: 9px;
+    padding: 9px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--nova-text);
+    text-align: left;
+    cursor: pointer;
+}
+
+.theme-option:hover,
+.theme-option.active {
+    background: var(--nova-surface-strong);
+    border-color: var(--nova-border);
+}
+
+.theme-option strong,
+.theme-option small {
+    display: block;
+}
+
+.theme-option strong {
+    font-size: 12px;
+}
+
+.theme-option small {
+    margin-top: 2px;
+    color: var(--nova-muted);
+    font-size: 10px;
+}
+
+.theme-option-check {
+    opacity: 0;
+    color: var(--nova-accent);
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.theme-option.active .theme-option-check {
+    opacity: 1;
+}
+
+.theme-option-preview {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    border: 1px solid var(--nova-border);
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
+}
+
+.theme-preview-dark {
+    background: linear-gradient(135deg, #0b0d12 0 52%, #8b7cff 53% 100%);
+}
+
+.theme-preview-light {
+    background: linear-gradient(135deg, #ffffff 0 52%, #6555d8 53% 100%);
+}
+
+.theme-preview-gold-silver {
+    background: linear-gradient(135deg, #d6ae5d 0 48%, #c9cdd3 49% 100%);
+}
+
+:root[data-theme="light"] .theme-switcher-menu,
+:root.light .theme-switcher-menu {
+    background: rgba(255,255,255,.96);
+}
+
+:root[data-theme="gold-silver"] .theme-switcher-menu,
+:root.gold-silver .theme-switcher-menu {
+    background: rgba(18,18,18,.96);
+    border-color: rgba(214,174,93,.25);
+}
+
+@media (max-width: 760px) {
+    .theme-switcher-name {
+        display: none;
+    }
+
+    .theme-switcher-button {
+        padding: 0 8px;
+    }
+
+    .theme-switcher-menu {
+        right: -8px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .theme-switcher-button,
+    .theme-switcher-menu {
+        transition: none;
+    }
+}
