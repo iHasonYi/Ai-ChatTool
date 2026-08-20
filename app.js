@@ -5559,18 +5559,42 @@ function logApiEvent(type, profile, status, duration, message) {
         const wrap = document.createElement("div");
         wrap.className = "nai-composer-extra";
         const modelButton = document.createElement("button");
-        modelButton.type = "button"; modelButton.className = "nai-composer-model";
-        const context = document.createElement("span"); context.className = "nai-composer-context";
-        wrap.append(modelButton, context);
+        modelButton.type = "button";
+        modelButton.className = "nai-composer-model";
+        const context = document.createElement("span");
+        context.className = "nai-composer-context";
+        const status = document.createElement("span");
+        status.className = "nai-composer-status is-ready";
+        status.innerHTML = '<span class="nai-status-dot" aria-hidden="true"></span><span class="nai-status-label">Ready</span>';
+        wrap.append(modelButton, context, status);
         actions.prepend(wrap);
         function refresh() {
             const profile = state.profiles.find(p => p.id === state.activeProfileId) || state.profiles.find(p => p.enabled && p.model);
             modelButton.textContent = profile ? `${profile.model || "Model"} · ${profile.name || "Profile"}` : "Select model";
-            context.textContent = `${state.chats.find(c => c.id === state.currentChatId)?.messages?.length || 0} messages`;
+            const chat = state.chats.find(c => c.id === state.currentChatId);
+            const messageCount = chat?.messages?.length || 0;
+            const tokenCount = (chat?.messages || []).reduce((sum, message) => sum + Number(message.usage?.total_tokens || message.usage?.totalTokens || 0), 0);
+            context.textContent = tokenCount ? `${messageCount} messages · ${tokenCount.toLocaleString()} tokens` : `${messageCount} messages`;
+            const label = status.querySelector(".nai-status-label");
+            if (state.isGenerating) {
+                status.className = "nai-composer-status is-working";
+                label.textContent = "Generating";
+            } else if (!profile) {
+                status.className = "nai-composer-status is-warning";
+                label.textContent = "No API";
+            } else if (profile.cooldownUntil && profile.cooldownUntil > Date.now()) {
+                status.className = "nai-composer-status is-warning";
+                label.textContent = "Cooldown";
+            } else {
+                status.className = "nai-composer-status is-ready";
+                label.textContent = "Ready";
+            }
         }
         modelButton.onclick = () => document.querySelector("[data-nai-model-switcher]")?.click() || openControlCenter("profiles");
         refresh();
-        setInterval(refresh, 1500);
+        if (!window.__novaComposerRefreshTimer) {
+            window.__novaComposerRefreshTimer = setInterval(refresh, 900);
+        }
     }
 
     ensureProjectFields();
