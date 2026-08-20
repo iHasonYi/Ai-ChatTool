@@ -4486,3 +4486,65 @@ html[data-theme="dark"] .message.user .message-content {
 
 
 /* v1.3.3 — Scope Stability Fix */
+
+
+/* ==========================================================================\n   v1.4.0 — Smart Conversation UX\n   ========================================================================== */
+
+.chat-area {
+    scroll-behavior: smooth;
+    overscroll-behavior: contain;
+}
+
+.scroll-latest-button {
+    position: absolute;
+    right: 24px;
+    bottom: 126px;
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface) 92%, transparent);
+    color: var(--text);
+    box-shadow: 0 10px 28px rgba(18, 24, 38, 0.14);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font: 600 12px/1 "Inter", "Cairo", system-ui, sans-serif;
+    cursor: pointer;
+    transition: transform 160ms ease, opacity 160ms ease, box-shadow 160ms ease;
+}
+
+.scroll-latest-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 32px rgba(18, 24, 38, 0.18);
+}
+
+.scroll-latest-button span:first-child {
+    display: grid;
+    width: 20px;
+    height: 20px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--surface-secondary);
+    font-size: 14px;
+}
+
+.scroll-latest-button[hidden] {
+    display: none;
+}
+
+html[data-theme="dark"] .scroll-latest-button {
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+}
+
+@media (max-width: 720px) {
+    .scroll-latest-button {
+        right: 14px;
+        bottom: 118px;
+        min-height: 34px;
+        padding: 0 10px;
+    }
+}

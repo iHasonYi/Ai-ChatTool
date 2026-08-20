@@ -35,6 +35,8 @@ const state = {
     isGenerating: false,
     abortController: null,
     theme: loadTheme(),
+    autoScroll: true,
+    scrollButton: null,
     currentRequestProfileId: null,
     lastRequestProfileId: null,
     lastRequestStatus: 0
@@ -123,6 +125,7 @@ function initialize() {
     setupDragAndDrop();
     setupQuickActions();
     setupTextareaAutoResize();
+    setupSmartConversationUX();
     injectProfileManager();
     renderProfileManager();
 }
@@ -206,6 +209,115 @@ function setupTextareaAutoResize() {
         "input",
         resizeTextarea
     );
+}
+
+function setupSmartConversationUX() {
+    if (!elements.chatArea || !elements.messageInput) {
+        return;
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "scroll-latest-button";
+    button.innerHTML = '<span aria-hidden="true">↓</span><span>Latest</span>';
+    button.setAttribute("aria-label", "Scroll to latest message");
+    button.hidden = true;
+
+    button.addEventListener("click", () => {
+        state.autoScroll = true;
+        scrollChatToBottom(true);
+    });
+
+    elements.chatArea.appendChild(button);
+    state.scrollButton = button;
+
+    elements.chatArea.addEventListener("scroll", updateSmartScrollState, { passive: true });
+
+    elements.messageInput.addEventListener("input", saveCurrentDraft);
+
+    restoreCurrentDraft();
+    updateSmartScrollState();
+}
+
+function getDraftKey(chatId = state.currentChatId) {
+    return chatId ? `nova_ai_draft_${chatId}` : null;
+}
+
+function saveCurrentDraft() {
+    const key = getDraftKey();
+
+    if (!key || !elements.messageInput) {
+        return;
+    }
+
+    const value = elements.messageInput.value;
+
+    try {
+        if (value) {
+            localStorage.setItem(key, value);
+        } else {
+            localStorage.removeItem(key);
+        }
+    } catch {
+        // Draft persistence must never interrupt typing.
+    }
+}
+
+function clearCurrentDraft(chatId = state.currentChatId) {
+    const key = getDraftKey(chatId);
+
+    if (!key) {
+        return;
+    }
+
+    try {
+        localStorage.removeItem(key);
+    } catch {
+        // Ignore storage failures.
+    }
+}
+
+function restoreCurrentDraft() {
+    if (!elements.messageInput) {
+        return;
+    }
+
+    const key = getDraftKey();
+    let draft = "";
+
+    if (key) {
+        try {
+            draft = localStorage.getItem(key) || "";
+        } catch {
+            draft = "";
+        }
+    }
+
+    elements.messageInput.value = draft;
+    resizeTextarea();
+}
+
+function updateSmartScrollState() {
+    if (!elements.chatArea) {
+        return;
+    }
+
+    const distanceFromBottom =
+        elements.chatArea.scrollHeight -
+        elements.chatArea.scrollTop -
+        elements.chatArea.clientHeight;
+
+    const nearBottom = distanceFromBottom < 120;
+
+    if (nearBottom) {
+        state.autoScroll = true;
+    } else if (elements.chatArea.scrollHeight > elements.chatArea.clientHeight + 20) {
+        state.autoScroll = false;
+    }
+
+    if (state.scrollButton) {
+        state.scrollButton.hidden = nearBottom;
+    }
 }
 
 function resizeTextarea() {
@@ -681,6 +793,7 @@ async function sendMessage() {
         getAttachmentTitle()
     );
 
+    clearCurrentDraft();
     elements.messageInput.value = "";
 
     resizeTextarea();
@@ -1502,8 +1615,11 @@ function renderCurrentChat() {
         );
     }
 
+    restoreCurrentDraft();
+    state.autoScroll = true;
+
     requestAnimationFrame(() => {
-        scrollChatToBottom();
+        scrollChatToBottom(true);
     });
 }
 
@@ -2297,9 +2413,21 @@ function findMessageElement(
     );
 }
 
-function scrollChatToBottom() {
+function scrollChatToBottom(force = false) {
+    if (!elements.chatArea) {
+        return;
+    }
+
+    if (!force && state.autoScroll === false) {
+        updateSmartScrollState();
+        return;
+    }
+
     elements.chatArea.scrollTop =
         elements.chatArea.scrollHeight;
+
+    state.autoScroll = true;
+    updateSmartScrollState();
 }
 
 function stopGeneration() {
@@ -2348,6 +2476,7 @@ function createNewChat(
     state.currentChatId =
         chat.id;
 
+    clearCurrentDraft(chat.id);
     saveChats();
 
     if (render) {
@@ -3063,6 +3192,7 @@ function loadTheme() {
 }
 
 function clearComposer() {
+    clearCurrentDraft();
     elements.messageInput.value =
         "";
 
