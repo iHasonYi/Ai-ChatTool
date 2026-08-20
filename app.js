@@ -1515,6 +1515,56 @@ async function readStreamingResponse(
     assistantMessage,
     assistantElement
 ) {
+    const contentType =
+        response.headers.get("content-type") ||
+        "";
+
+    if (!contentType.includes("text/event-stream")) {
+        const raw = await response.text();
+        let data;
+
+        try {
+            data = JSON.parse(raw);
+        } catch {
+            const plain = raw.trim();
+            if (plain) {
+                assistantMessage.content += plain;
+                updateAssistantElement(assistantMessage, assistantElement);
+                return;
+            }
+
+            throw new Error("The API returned an empty response body.");
+        }
+
+        if (data?.error) {
+            const message =
+                data.error.message ||
+                data.error.detail ||
+                "The API returned an error.";
+            const error = new Error(String(message));
+            error.status = Number(data.error.code || data.error.status || response.status) || response.status;
+            error.retryable = shouldFailover(error.status);
+            throw error;
+        }
+
+        if (data?.usage) {
+            assistantMessage.usage = data.usage;
+        }
+
+        const content = extractStreamingDelta(data);
+        if (typeof content === "string" && content) {
+            assistantMessage.content += content;
+            updateAssistantElement(assistantMessage, assistantElement);
+            scrollChatToBottom();
+        }
+
+        if (!assistantMessage.content && !assistantMessage.usage) {
+            throw new Error("The API response did not contain assistant content.");
+        }
+
+        return;
+    }
+
     if (!response.body) {
         throw new Error(
             "The API returned an empty response body."
@@ -3232,57 +3282,121 @@ function toggleApiKeyVisibility() {
 }
 
 function toggleTheme() {
+    const current =
+        document.documentElement.dataset.theme ||
+        state.theme ||
+        "dark";
+
+    const order = [
+        "dark",
+        "light",
+        "gold-silver"
+    ];
+
+    const currentIndex =
+        order.indexOf(current);
+
     const nextTheme =
-        state.theme === "dark"
-            ? "light"
-            : "dark";
+        order[(currentIndex + 1 + order.length) % order.length];
 
-    state.theme =
-        nextTheme;
+    state.theme = nextTheme;
 
-    saveTheme(
-        nextTheme
-    );
+    saveTheme(nextTheme);
 
-    applyTheme(
-        nextTheme
-    );
+    if (typeof applyNovaTheme === "function") {
+        applyNovaTheme(nextTheme);
+    } else {
+        applyTheme(nextTheme);
+    }
 }
 
 function applyTheme(theme) {
+    const normalizedTheme =
+        ["dark", "light", "gold-silver"].includes(theme)
+            ? theme
+            : "dark";
+
     document.documentElement.dataset.theme =
-        theme;
+        normalizedTheme;
+
+    document.documentElement.classList.toggle(
+        "light",
+        normalizedTheme === "light"
+    );
+
+    document.documentElement.classList.toggle(
+        "gold-silver",
+        normalizedTheme === "gold-silver"
+    );
 
     const isDark =
-        theme === "dark";
+        normalizedTheme === "dark";
 
     elements.themeIcon.textContent =
-        isDark
-            ? "☀"
-            : "☾";
+        normalizedTheme === "gold-silver"
+            ? "◐"
+            : isDark
+                ? "☀"
+                : "☾";
 
     elements.themeText.textContent =
-        isDark
-            ? "الوضع النهاري"
-            : "الوضع الليلي";
+        normalizedTheme === "gold-silver"
+            ? "Gold & Silver"
+            : isDark
+                ? "الوضع النهاري"
+                : "الوضع الليلي";
+
+    const themeName =
+        document.getElementById("themeSwitcherName");
+
+    const themeSwatch =
+        document.getElementById("themeSwitcherSwatch");
+
+    if (themeName) {
+        themeName.textContent =
+            normalizedTheme === "gold-silver"
+                ? "Gold & Silver"
+                : normalizedTheme === "light"
+                    ? "Light"
+                    : "Dark";
+    }
+
+    if (themeSwatch) {
+        themeSwatch.className =
+            `theme-switcher-swatch theme-swatch-${normalizedTheme}`;
+    }
 }
 
 function saveTheme(theme) {
+    const normalizedTheme =
+        ["dark", "light", "gold-silver"].includes(theme)
+            ? theme
+            : "dark";
+
     localStorage.setItem(
         STORAGE_KEYS.theme,
-        theme
+        normalizedTheme
+    );
+
+    localStorage.setItem(
+        "nova_ai_theme_v2",
+        normalizedTheme
     );
 }
 
 function loadTheme() {
     const stored =
         localStorage.getItem(
+            "nova_ai_theme_v2"
+        ) ||
+        localStorage.getItem(
             STORAGE_KEYS.theme
         );
 
     if (
         stored === "dark" ||
-        stored === "light"
+        stored === "light" ||
+        stored === "gold-silver"
     ) {
         return stored;
     }
@@ -4080,6 +4194,15 @@ function maskApiUrl(url) {
    Nova AI Universal Workspace Enhancements
    Version: 1.0.0
    ============================================================ */
+
+function readJson(key, fallback = null) {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+    } catch {
+        return fallback;
+    }
+}
 
 function logApiEvent(type, profile, status, duration, message) {
     const storageKey = "nova_ai_error_logs_v1";
