@@ -6242,3 +6242,63 @@ html.gold-silver .chat-item.active {
     }
 }
 
+
+
+/* ==========================================================================
+   v1.5.5 — Collapsed Sidebar Control / Compare Rail Fix
+   Keep Control and Compare visible and stacked vertically in the collapsed rail.
+   ========================================================================== */
+
+.sidebar.is-collapsed .nai-sidebar-tools {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 10px 0 !important;
+    padding: 0 !important;
+    gap: 6px !important;
+    flex-wrap: nowrap !important;
+    overflow: visible !important;
+}
+
+.sidebar.is-collapsed .nai-sidebar-tools .nai-tool-button {
+    display: flex !important;
+    flex: 0 0 42px !important;
+    width: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    border-radius: 12px !important;
+}
+
+.sidebar.is-collapsed .nai-sidebar-tools .nai-tool-button + .nai-tool-button {
+    margin-top: 0 !important;
+}
+
+@media (max-width: 900px) {
+    .sidebar.is-collapsed .nai-sidebar-tools {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        flex-direction: initial !important;
+        width: 100% !important;
+        gap: 8px !important;
+    }
+
+    .sidebar.is-collapsed .nai-sidebar-tools .nai-tool-button {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        flex: initial !important;
+    }
+}

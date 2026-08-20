@@ -3341,6 +3341,21 @@ function updateSidebarCollapseUI(collapsed) {
         const label = item.querySelector(".action-content strong")?.textContent?.trim();
         if (label) item.setAttribute("title", collapsed ? label : "");
     });
+
+    const sidebarTools = document.getElementById("naiSidebarTools");
+    if (sidebarTools) {
+        if (collapsed) {
+            sidebarTools.style.setProperty("display", "flex", "important");
+            sidebarTools.style.setProperty("flex-direction", "column", "important");
+            sidebarTools.style.setProperty("align-items", "center", "important");
+            sidebarTools.style.setProperty("gap", "6px", "important");
+        } else {
+            sidebarTools.style.removeProperty("display");
+            sidebarTools.style.removeProperty("flex-direction");
+            sidebarTools.style.removeProperty("align-items");
+            sidebarTools.style.removeProperty("gap");
+        }
+    }
 }
 
 function toggleSidebarCollapsed() {
@@ -4730,7 +4745,7 @@ function setupNovaThemeEngine() {
         const style = document.createElement("style");
         style.id = "naiWorkspaceStyles";
         style.textContent = `
-            .nai-sidebar-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.sidebar.is-collapsed .nai-sidebar-tools{display:flex;flex-direction:column;align-items:center;gap:5px;width:100%;margin:10px 0}.sidebar.is-collapsed .nai-sidebar-tools .nai-tool-button{width:44px;min-width:44px;height:42px;min-height:42px;padding:0;justify-content:center;white-space:nowrap;overflow:hidden;border-radius:12px}
+            .nai-sidebar-tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.sidebar.is-collapsed .nai-sidebar-tools{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:flex-start!important;gap:6px!important;width:100%!important;margin:10px 0!important;padding:0!important;flex-wrap:nowrap!important;overflow:visible!important}.sidebar.is-collapsed .nai-sidebar-tools .nai-tool-button{display:flex!important;flex:0 0 42px!important;width:44px!important;min-width:44px!important;max-width:44px!important;height:42px!important;min-height:42px!important;max-height:42px!important;margin:0!important;padding:0!important;justify-content:center!important;align-items:center!important;white-space:nowrap!important;overflow:hidden!important;box-sizing:border-box!important;border-radius:12px!important}
             .nai-tool-button{border:1px solid var(--border-color,#2b2f3a);background:var(--surface-2,#171a22);color:var(--text-primary,#fff);border-radius:12px;padding:10px 9px;cursor:pointer;font:inherit;font-size:12px;display:flex;align-items:center;justify-content:center;gap:7px;transition:.2s}
             .nai-tool-button:hover{border-color:rgba(139,92,246,.65);transform:translateY(-1px);background:rgba(139,92,246,.08)}
             .nai-search-wrap{padding:0 2px 10px}
