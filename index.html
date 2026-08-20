@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Nova AI — Universal AI Workspace v1.3.2</title>
+    <title>Nova AI — Universal AI Workspace v1.4.4</title>
 
     <meta
         name="description"
@@ -209,6 +209,17 @@
             </div>
 
             <div class="topbar-right">
+
+                <button
+                    class="workspace-health-button"
+                    id="workspaceHealthButton"
+                    type="button"
+                    title="Workspace health"
+                    aria-label="Open workspace health"
+                >
+                    <span class="workspace-health-dot" id="workspaceHealthDot"></span>
+                    <span class="workspace-health-label" id="workspaceHealthLabel">Ready</span>
+                </button>
 
                 <button
                     class="icon-button"
@@ -696,11 +707,16 @@
             <div>
                 <div class="inspector-eyebrow">NETWORK TELEMETRY</div>
                 <h2 id="requestInspectorTitle">Request Inspector</h2>
-                <p>Recent API activity and failover history.</p>
+                <p>Recent API activity, failover history, and workspace health.</p>
             </div>
-            <button class="icon-btn" id="closeRequestInspector" type="button" aria-label="Close">×</button>
+            <div class="inspector-header-actions">
+                <button class="inspector-action" id="refreshRequestInspector" type="button">Refresh</button>
+                <button class="inspector-action danger" id="clearRequestLogs" type="button">Clear logs</button>
+                <button class="icon-btn" id="closeRequestInspector" type="button" aria-label="Close">×</button>
+            </div>
         </header>
         <div class="inspector-summary" id="requestInspectorSummary"></div>
+        <div class="workspace-health-grid" id="workspaceHealthGrid"></div>
         <div class="inspector-list" id="requestInspectorList"></div>
     </section>
 </div>

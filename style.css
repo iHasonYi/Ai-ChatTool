@@ -4888,3 +4888,170 @@ html[data-theme="dark"] .model-picker-popover {
 .inspector-empty{padding:54px 20px;text-align:center;color:var(--muted,#717887)}.inspector-empty h3{margin:0 0 6px;color:var(--text,#151923);font-size:16px}.inspector-empty p{margin:0;font-size:12px}
 body.inspector-open{overflow:hidden}
 @media(max-width:620px){.inspector-summary{grid-template-columns:repeat(2,1fr);padding:14px 16px}.inspector-header{padding:18px 16px}.inspector-list{padding:0 16px 16px}.inspector-row-main{align-items:flex-start;flex-direction:column;gap:7px}}
+
+
+/* ==========================================================================
+   v1.4.4 — UI Health & Request Inspector Polish
+   ========================================================================== */
+
+.workspace-health-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--border, rgba(120, 130, 150, .18));
+    border-radius: 999px;
+    background: var(--surface, rgba(120, 130, 150, .06));
+    color: var(--text, #151923);
+    cursor: pointer;
+    font: inherit;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+
+.workspace-health-button:hover {
+    transform: translateY(-1px);
+    border-color: var(--accent, #7c5cff);
+}
+
+.workspace-health-label {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.workspace-health-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #9aa1ad;
+    box-shadow: 0 0 0 3px rgba(154, 161, 173, .12);
+}
+
+.workspace-health-dot.is-ready {
+    background: #35b979;
+    box-shadow: 0 0 0 3px rgba(53, 185, 121, .12);
+}
+
+.workspace-health-dot.is-warning {
+    background: #e5a43b;
+    box-shadow: 0 0 0 3px rgba(229, 164, 59, .12);
+}
+
+.workspace-health-dot.is-error {
+    background: #e45d68;
+    box-shadow: 0 0 0 3px rgba(228, 93, 104, .12);
+}
+
+.inspector-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.inspector-action {
+    min-height: 31px;
+    padding: 0 10px;
+    border: 1px solid var(--border, rgba(120, 130, 150, .18));
+    border-radius: 9px;
+    background: var(--surface, rgba(120, 130, 150, .05));
+    color: var(--text, #151923);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.inspector-action:hover {
+    border-color: var(--accent, #7c5cff);
+}
+
+.inspector-action.danger:hover {
+    border-color: #e45d68;
+    color: #c4414c;
+}
+
+.workspace-health-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 0 24px 16px;
+}
+
+.workspace-health-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    min-width: 0;
+    padding: 11px 12px;
+    border: 1px solid var(--border, rgba(120, 130, 150, .14));
+    border-radius: 13px;
+    background: var(--surface, rgba(120, 130, 150, .04));
+}
+
+.workspace-health-card > div {
+    min-width: 0;
+}
+
+.workspace-health-card strong,
+.workspace-health-card span {
+    display: block;
+}
+
+.workspace-health-card strong {
+    font-size: 11px;
+    margin-bottom: 2px;
+}
+
+.workspace-health-card div span {
+    color: var(--muted, #717887);
+    font-size: 10px;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.workspace-health-card-dot {
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    margin-top: 4px;
+    border-radius: 50%;
+    background: #9aa1ad;
+}
+
+.workspace-health-card-dot.success { background: #35b979; }
+.workspace-health-card-dot.warning { background: #e5a43b; }
+.workspace-health-card-dot.error { background: #e45d68; }
+.workspace-health-card-dot.working { background: #7c5cff; }
+
+@media (max-width: 760px) {
+    .workspace-health-button {
+        padding: 0 8px;
+    }
+
+    .workspace-health-label {
+        display: none;
+    }
+
+    .workspace-health-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .inspector-header-actions {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+}
+
+@media (max-width: 520px) {
+    .workspace-health-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inspector-header-actions .inspector-action {
+        display: none;
+    }
+}

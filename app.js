@@ -4057,10 +4057,122 @@ function inspectorStatusClass(status) {
     return "neutral";
 }
 
+function getWorkspaceHealth() {
+    const checks = [];
+    const requiredElements = [
+        "chatArea",
+        "messages",
+        "messageInput",
+        "sendButton",
+        "attachButton",
+        "settingsModal",
+        "activeModel"
+    ];
+
+    const missing = requiredElements.filter(id => !document.getElementById(id));
+    checks.push({
+        label: "Core UI",
+        detail: missing.length ? `${missing.length} required element(s) missing` : "All core controls detected",
+        state: missing.length ? "error" : "success"
+    });
+
+    checks.push({
+        label: "Markdown",
+        detail: typeof window.marked === "function" ? "Marked loaded" : "Marked unavailable",
+        state: typeof window.marked === "function" ? "success" : "warning"
+    });
+
+    checks.push({
+        label: "Sanitizer",
+        detail: window.DOMPurify ? "DOMPurify loaded" : "DOMPurify unavailable",
+        state: window.DOMPurify ? "success" : "warning"
+    });
+
+    const usableProfiles = state.profiles.filter(profile =>
+        profile.enabled && profile.apiUrl && profile.model
+    );
+    checks.push({
+        label: "API Profiles",
+        detail: usableProfiles.length
+            ? `${usableProfiles.length} configured and enabled`
+            : "No enabled profile with URL + model",
+        state: usableProfiles.length ? "success" : "warning"
+    });
+
+    checks.push({
+        label: "Chats",
+        detail: `${state.chats.length} conversation${state.chats.length === 1 ? "" : "s"} available`,
+        state: "success"
+    });
+
+    let storageOk = true;
+    try {
+        const key = "__nova_health_check__";
+        localStorage.setItem(key, "1");
+        localStorage.removeItem(key);
+    } catch {
+        storageOk = false;
+    }
+    checks.push({
+        label: "Local storage",
+        detail: storageOk ? "Available" : "Unavailable or blocked",
+        state: storageOk ? "success" : "error"
+    });
+
+    const hasGeneratingRequest = !!state.isGenerating;
+    checks.push({
+        label: "Generation",
+        detail: hasGeneratingRequest ? "Request in progress" : "Idle",
+        state: hasGeneratingRequest ? "working" : "success"
+    });
+
+    return checks;
+}
+
+function updateWorkspaceHealthIndicator() {
+    const dot = document.getElementById("workspaceHealthDot");
+    const label = document.getElementById("workspaceHealthLabel");
+    if (!dot || !label) return;
+
+    const checks = getWorkspaceHealth();
+    const hasError = checks.some(check => check.state === "error");
+    const hasWarning = checks.some(check => check.state === "warning");
+
+    dot.className = "workspace-health-dot";
+    if (hasError) {
+        dot.classList.add("is-error");
+        label.textContent = "Attention";
+    } else if (hasWarning) {
+        dot.classList.add("is-warning");
+        label.textContent = "Check";
+    } else {
+        dot.classList.add("is-ready");
+        label.textContent = state.isGenerating ? "Working" : "Ready";
+    }
+}
+
+function renderWorkspaceHealth() {
+    const grid = document.getElementById("workspaceHealthGrid");
+    if (!grid) return;
+
+    grid.innerHTML = getWorkspaceHealth().map(check => `
+        <div class="workspace-health-card">
+            <span class="workspace-health-card-dot ${escapeHtml(check.state)}"></span>
+            <div>
+                <strong>${escapeHtml(check.label)}</strong>
+                <span>${escapeHtml(check.detail)}</span>
+            </div>
+        </div>
+    `).join("");
+}
+
 function renderRequestInspector() {
     const list = document.getElementById("requestInspectorList");
     const summary = document.getElementById("requestInspectorSummary");
     if (!list || !summary) return;
+
+    renderWorkspaceHealth();
+    updateWorkspaceHealthIndicator();
 
     const logs = getInspectorLogs().slice(0, 50);
     const successful = logs.filter(item => Number(item.status) >= 200 && Number(item.status) < 300).length;
@@ -4089,22 +4201,27 @@ function renderRequestInspector() {
 
     list.innerHTML = logs.map(item => {
         const status = Number(item.status) || 0;
-        const state = inspectorStatusClass(status);
+        const stateClass = inspectorStatusClass(status);
         const time = item.timestamp
-            ? new Date(item.timestamp).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"})
+            ? new Date(item.timestamp).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            })
             : "—";
+
         return `
             <article class="inspector-row">
                 <div class="inspector-row-main">
                     <div class="inspector-provider">
-                        <span class="inspector-dot ${state}"></span>
+                        <span class="inspector-dot ${stateClass}"></span>
                         <strong>${escapeHtml(item.profileName || "Unknown")}</strong>
                         <span class="inspector-type">${escapeHtml(item.type || "request")}</span>
                     </div>
                     <div class="inspector-meta">
                         <span>${time}</span>
                         <span>${formatInspectorDuration(item.duration)}</span>
-                        <span class="inspector-status ${state}">${status || "—"}</span>
+                        <span class="inspector-status ${stateClass}">${status || "—"}</span>
                     </div>
                 </div>
                 <div class="inspector-message">${escapeHtml(item.message || "No details")}</div>
@@ -4116,6 +4233,7 @@ function renderRequestInspector() {
 function openRequestInspector() {
     const modal = document.getElementById("requestInspectorModal");
     if (!modal) return;
+
     renderRequestInspector();
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
@@ -4125,24 +4243,63 @@ function openRequestInspector() {
 function closeRequestInspector() {
     const modal = document.getElementById("requestInspectorModal");
     if (!modal) return;
+
     modal.classList.remove("open");
     modal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("inspector-open");
 }
 
+function clearRequestInspectorLogs() {
+    try {
+        localStorage.removeItem("nova_ai_error_logs_v1");
+    } catch {
+        // Logging cleanup must never break the workspace.
+    }
+    renderRequestInspector();
+    if (typeof showToast === "function") {
+        showToast("Request logs cleared.");
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("closeRequestInspector")?.addEventListener("click", closeRequestInspector);
+    document.getElementById("closeRequestInspector")?.addEventListener(
+        "click",
+        closeRequestInspector
+    );
+
     document.querySelectorAll("[data-inspector-close]").forEach(node => {
         node.addEventListener("click", closeRequestInspector);
     });
-    document.getElementById("requestInspectorCommand")?.addEventListener("click", openRequestInspector);
+
+    document.getElementById("refreshRequestInspector")?.addEventListener(
+        "click",
+        renderRequestInspector
+    );
+
+    document.getElementById("clearRequestLogs")?.addEventListener(
+        "click",
+        clearRequestInspectorLogs
+    );
+
+    document.getElementById("workspaceHealthButton")?.addEventListener(
+        "click",
+        openRequestInspector
+    );
+
     document.addEventListener("keydown", event => {
         if (event.key === "Escape") closeRequestInspector();
-        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "i") {
+
+        if (
+            (event.ctrlKey || event.metaKey) &&
+            event.shiftKey &&
+            event.key.toLowerCase() === "i"
+        ) {
             event.preventDefault();
             openRequestInspector();
         }
     });
+
+    updateWorkspaceHealthIndicator();
 });
 
 (function setupUniversalWorkspace() {
