@@ -2558,7 +2558,7 @@ function updateSendButton() {
         );
 
         elements.sendIcon.textContent =
-            "➤";
+            "↑";
     }
 }
 
