@@ -157,7 +157,7 @@ function setupEventListeners() {
     elements.closeSidebarButton?.addEventListener("click", closeSidebar);
     elements.mobileOverlay?.addEventListener("click", closeSidebar);
 
-    elements.activeModel?.addEventListener("click", openSettings);
+    elements.activeModel?.addEventListener("click", openModelPicker);
 
     elements.attachButton?.addEventListener("click", () => {
         elements.fileInput?.click();
@@ -715,6 +715,110 @@ function formatFileSize(bytes) {
     ).toFixed(
         index === 0 ? 0 : 1
     )} ${units[index]}`;
+}
+
+function openModelPicker() {
+    const existing = document.getElementById("modelPickerPopover");
+    if (existing) {
+        existing.remove();
+        return;
+    }
+
+    const profiles = state.profiles.filter(profile => profile.enabled);
+    const anchor = elements.activeModel;
+    if (!anchor) return;
+
+    const popover = document.createElement("div");
+    popover.id = "modelPickerPopover";
+    popover.className = "model-picker-popover";
+
+    const active = getActiveProfile();
+    const rows = profiles.length
+        ? profiles.map(profile => {
+            const status = getProfileStatusSafe(profile);
+            const provider = inferProviderName(profile.apiUrl);
+            const selected = profile.id === active?.id;
+            return `
+                <button class="model-picker-item ${selected ? "selected" : ""}" type="button" data-profile-id="${escapeHtml(profile.id)}">
+                    <span class="model-picker-status ${status.key}"></span>
+                    <span class="model-picker-main">
+                        <strong>${escapeHtml(profile.model || "Unnamed model")}</strong>
+                        <small>${escapeHtml(profile.name)} · ${escapeHtml(provider)}</small>
+                    </span>
+                    <span class="model-picker-state">${selected ? "✓" : escapeHtml(status.label)}</span>
+                </button>
+            `;
+        }).join("")
+        : `<div class="model-picker-empty">No enabled API profiles are configured.</div>`;
+
+    popover.innerHTML = `
+        <div class="model-picker-head">
+            <div>
+                <strong>Choose model</strong>
+                <small>Switch the active API without opening Settings.</small>
+            </div>
+            <button type="button" class="model-picker-close" aria-label="Close">×</button>
+        </div>
+        <div class="model-picker-list">${rows}</div>
+        <button type="button" class="model-picker-manage">Manage API Profiles</button>
+    `;
+
+    document.body.appendChild(popover);
+
+    const rect = anchor.getBoundingClientRect();
+    const width = Math.min(360, Math.max(300, rect.width + 100));
+    popover.style.width = `${width}px`;
+    popover.style.top = `${Math.min(window.innerHeight - 24, rect.bottom + 10)}px`;
+    popover.style.left = `${Math.max(12, Math.min(window.innerWidth - width - 12, rect.left + rect.width / 2 - width / 2))}px`;
+
+    popover.querySelectorAll("[data-profile-id]").forEach(button => {
+        button.addEventListener("click", () => {
+            selectProfile(button.dataset.profileId);
+            popover.remove();
+            showToast("Active model switched.");
+        });
+    });
+
+    popover.querySelector(".model-picker-close")?.addEventListener("click", () => popover.remove());
+    popover.querySelector(".model-picker-manage")?.addEventListener("click", () => {
+        popover.remove();
+        openControlCenter("profiles");
+    });
+
+    const dismiss = event => {
+        if (!popover.contains(event.target) && !anchor.contains(event.target)) {
+            popover.remove();
+            document.removeEventListener("pointerdown", dismiss, true);
+        }
+    };
+    requestAnimationFrame(() => document.addEventListener("pointerdown", dismiss, true));
+
+    const reposition = () => {
+        if (!document.body.contains(popover)) return;
+        const next = anchor.getBoundingClientRect();
+        popover.style.top = `${Math.min(window.innerHeight - 24, next.bottom + 10)}px`;
+        popover.style.left = `${Math.max(12, Math.min(window.innerWidth - width - 12, next.left + next.width / 2 - width / 2))}px`;
+    };
+    window.addEventListener("resize", reposition, { once: true });
+}
+
+function getProfileStatusSafe(profile) {
+    if (!profile?.enabled) return { key: "disabled", label: "Disabled" };
+    if (profile.cooldownUntil && profile.cooldownUntil > Date.now()) return { key: "cooldown", label: "Cooldown" };
+    if (Number(profile.failedAttempts) > 0) return { key: "failed", label: "Recovering" };
+    if (!profile.apiUrl || !profile.model) return { key: "unconfigured", label: "Not configured" };
+    return { key: "online", label: "Ready" };
+}
+
+function inferProviderName(apiUrl = "") {
+    const value = String(apiUrl).toLowerCase();
+    if (value.includes("openrouter")) return "OpenRouter";
+    if (value.includes("api.openai.com")) return "OpenAI";
+    if (value.includes("anthropic")) return "Anthropic";
+    if (value.includes("generativelanguage")) return "Google";
+    if (value.includes("ollama")) return "Ollama";
+    if (value.includes("lmstudio") || value.includes("lm-studio")) return "LM Studio";
+    return "Custom API";
 }
 
 function handleSendButton() {
