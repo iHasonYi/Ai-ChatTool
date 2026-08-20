@@ -688,5 +688,21 @@
 
 <script src="app.js"></script>
 
+
+<div class="inspector-modal" id="requestInspectorModal" aria-hidden="true">
+    <div class="inspector-backdrop" data-inspector-close></div>
+    <section class="inspector-panel" role="dialog" aria-modal="true" aria-labelledby="requestInspectorTitle">
+        <header class="inspector-header">
+            <div>
+                <div class="inspector-eyebrow">NETWORK TELEMETRY</div>
+                <h2 id="requestInspectorTitle">Request Inspector</h2>
+                <p>Recent API activity and failover history.</p>
+            </div>
+            <button class="icon-btn" id="closeRequestInspector" type="button" aria-label="Close">×</button>
+        </header>
+        <div class="inspector-summary" id="requestInspectorSummary"></div>
+        <div class="inspector-list" id="requestInspectorList"></div>
+    </section>
+</div>
 </body>
 </html>

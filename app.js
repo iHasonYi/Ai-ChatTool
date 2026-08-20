@@ -4032,6 +4032,119 @@ function logApiEvent(type, profile, status, duration, message) {
     }
 }
 
+
+function getInspectorLogs() {
+    try {
+        const raw = localStorage.getItem("nova_ai_error_logs_v1");
+        const logs = raw ? JSON.parse(raw) : [];
+        return Array.isArray(logs) ? logs : [];
+    } catch {
+        return [];
+    }
+}
+
+function formatInspectorDuration(ms) {
+    const value = Number(ms) || 0;
+    if (value < 1000) return `${Math.round(value)} ms`;
+    return `${(value / 1000).toFixed(2)} s`;
+}
+
+function inspectorStatusClass(status) {
+    const code = Number(status) || 0;
+    if (code >= 200 && code < 300) return "success";
+    if (code === 429 || code === 408) return "warning";
+    if (code >= 400) return "error";
+    return "neutral";
+}
+
+function renderRequestInspector() {
+    const list = document.getElementById("requestInspectorList");
+    const summary = document.getElementById("requestInspectorSummary");
+    if (!list || !summary) return;
+
+    const logs = getInspectorLogs().slice(0, 50);
+    const successful = logs.filter(item => Number(item.status) >= 200 && Number(item.status) < 300).length;
+    const failed = logs.filter(item => Number(item.status) >= 400).length;
+    const avg = logs.length
+        ? logs.reduce((sum, item) => sum + (Number(item.duration) || 0), 0) / logs.length
+        : 0;
+
+    summary.innerHTML = `
+        <div class="inspector-stat"><strong>${logs.length}</strong><span>Requests</span></div>
+        <div class="inspector-stat"><strong>${successful}</strong><span>Successful</span></div>
+        <div class="inspector-stat"><strong>${failed}</strong><span>Failed</span></div>
+        <div class="inspector-stat"><strong>${formatInspectorDuration(avg)}</strong><span>Avg. time</span></div>
+    `;
+
+    if (!logs.length) {
+        list.innerHTML = `
+            <div class="inspector-empty">
+                <div class="inspector-empty-icon">⌁</div>
+                <h3>No API activity yet</h3>
+                <p>Your request telemetry will appear here after the next API call.</p>
+            </div>
+        `;
+        return;
+    }
+
+    list.innerHTML = logs.map(item => {
+        const status = Number(item.status) || 0;
+        const state = inspectorStatusClass(status);
+        const time = item.timestamp
+            ? new Date(item.timestamp).toLocaleTimeString([], {hour:"2-digit", minute:"2-digit", second:"2-digit"})
+            : "—";
+        return `
+            <article class="inspector-row">
+                <div class="inspector-row-main">
+                    <div class="inspector-provider">
+                        <span class="inspector-dot ${state}"></span>
+                        <strong>${escapeHtml(item.profileName || "Unknown")}</strong>
+                        <span class="inspector-type">${escapeHtml(item.type || "request")}</span>
+                    </div>
+                    <div class="inspector-meta">
+                        <span>${time}</span>
+                        <span>${formatInspectorDuration(item.duration)}</span>
+                        <span class="inspector-status ${state}">${status || "—"}</span>
+                    </div>
+                </div>
+                <div class="inspector-message">${escapeHtml(item.message || "No details")}</div>
+            </article>
+        `;
+    }).join("");
+}
+
+function openRequestInspector() {
+    const modal = document.getElementById("requestInspectorModal");
+    if (!modal) return;
+    renderRequestInspector();
+    modal.classList.add("open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("inspector-open");
+}
+
+function closeRequestInspector() {
+    const modal = document.getElementById("requestInspectorModal");
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("inspector-open");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("closeRequestInspector")?.addEventListener("click", closeRequestInspector);
+    document.querySelectorAll("[data-inspector-close]").forEach(node => {
+        node.addEventListener("click", closeRequestInspector);
+    });
+    document.getElementById("requestInspectorCommand")?.addEventListener("click", openRequestInspector);
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") closeRequestInspector();
+        if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === "i") {
+            event.preventDefault();
+            openRequestInspector();
+        }
+    });
+});
+
 (function setupUniversalWorkspace() {
     "use strict";
 
@@ -5715,3 +5828,5 @@ function logApiEvent(type, profile, status, duration, message) {
         };
     }
 })();
+
+window.openRequestInspector = openRequestInspector;
