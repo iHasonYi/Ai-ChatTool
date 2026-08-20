@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Nova AI — Universal AI Workspace v1.3.2</title>
+
+    <meta
+        name="description"
+        content="Modern AI chat interface with custom API support."
+    >
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-top">
+
+            <div class="brand">
+
+                <div class="brand-icon">
+                    <span class="brand-mark-dot"></span>
+                </div>
+
+                <div class="brand-text">
+                    <strong>Nova AI</strong>
+                    <small>Universal AI Workspace</small>
+                </div>
+
+            </div>
+
+            <button
+                class="icon-button mobile-close"
+                id="closeSidebarButton"
+                aria-label="Close sidebar"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <button
+            class="new-chat-button"
+            id="newChatButton"
+            type="button"
+        >
+            <span class="new-chat-icon">+</span>
+            <span>New chat</span>
+        </button>
+
+        <nav class="sidebar-nav" aria-label="Workspace navigation">
+            <button class="sidebar-nav-item active" type="button">
+                <span class="nav-icon">⌁</span>
+                <span>Chats</span>
+            </button>
+            <button class="sidebar-nav-item" type="button">
+                <span class="nav-icon">◫</span>
+                <span>Images</span>
+            </button>
+            <button class="sidebar-nav-item" type="button">
+                <span class="nav-icon">▤</span>
+                <span>Library</span>
+            </button>
+            <button class="sidebar-nav-item" type="button" id="projectsNavButton">
+                <span class="nav-icon">▦</span>
+                <span>Projects</span>
+            </button>
+            <button class="sidebar-nav-item" type="button" id="apiProfilesNavButton">
+                <span class="nav-icon">◉</span>
+                <span>API Profiles</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-section">
+
+            <div class="section-title">
+
+                <div class="section-title-label">
+                    <span class="section-title-dot"></span>
+                    <span>Chats</span>
+                </div>
+
+                <button
+                    class="small-icon-button"
+                    id="clearChatsButton"
+                    title="Clear chats"
+                    type="button"
+                >
+                    ⋯
+                </button>
+
+            </div>
+
+            <div class="chat-list" id="chatList"></div>
+
+        </div>
+
+        <div class="sidebar-bottom">
+
+            <button
+                class="sidebar-action"
+                id="settingsButton"
+                type="button"
+            >
+                <span class="action-icon">⚙</span>
+
+                <span class="action-content">
+                    <strong>Settings</strong>
+                    <small>API & Model</small>
+                </span>
+
+            </button>
+
+            <button
+                class="sidebar-action"
+                id="themeButton"
+                type="button"
+            >
+                <span class="action-icon" id="themeIcon">☾</span>
+
+                <span class="action-content">
+                    <strong id="themeText">Appearance</strong>
+                    <small>Theme</small>
+                </span>
+
+            </button>
+
+        </div>
+
+    </aside>
+
+    <div
+        class="mobile-overlay"
+        id="mobileOverlay"
+    ></div>
+
+    <main class="main-content">
+
+        <header class="topbar">
+
+            <div class="topbar-left">
+
+                <button
+                    class="icon-button menu-button"
+                    id="openSidebarButton"
+                    aria-label="Open sidebar"
+                    type="button"
+                >
+                    ☰
+                </button>
+
+                <div class="mobile-brand">
+
+                    <div class="brand-icon small">
+                        <span>AI</span>
+                    </div>
+
+                    <div>
+                        <strong>Nova AI</strong>
+                        <small>AI Workspace</small>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="topbar-center">
+
+                <button
+                    class="active-model"
+                    id="activeModel"
+                    type="button"
+                >
+
+                    <span class="status-dot"></span>
+
+                    <span class="model-info">
+
+                        <small>ACTIVE MODEL</small>
+
+                        <strong id="activeModelName">
+                            No model selected
+                        </strong>
+
+                    </span>
+
+                    <span class="model-chevron">⌄</span>
+
+                </button>
+
+            </div>
+
+            <div class="topbar-right">
+
+                <button
+                    class="icon-button"
+                    id="topThemeButton"
+                    title="Theme"
+                    type="button"
+                >
+                    ☾
+                </button>
+
+                <button
+                    class="icon-button"
+                    id="topSettingsButton"
+                    title="Settings"
+                    type="button"
+                >
+                    ⚙
+                </button>
+
+            </div>
+
+        </header>
+
+        <section
+            class="chat-area"
+            id="chatArea"
+        >
+
+            <div
+                class="welcome-screen"
+                id="welcomeScreen"
+            >
+
+                <div class="welcome-glow"></div>
+
+                <div class="welcome-icon">
+
+                    <div class="welcome-icon-inner">
+                        ✦
+                    </div>
+
+                </div>
+
+                <div class="welcome-badge">
+                    <span></span>
+                    Universal AI workspace
+                </div>
+
+                <h1>
+                    What can I
+                    <span>help you build?</span>
+                </h1>
+
+                <p>
+                    Connect your favorite model, bring your files and images, and work from one focused AI workspace.
+                </p>
+
+                <div class="quick-actions">
+
+                    <button
+                        class="quick-card"
+                        data-prompt="Explain how artificial intelligence works in simple terms."
+                        type="button"
+                    >
+
+                        <div class="quick-card-icon">
+                            ✦
+                        </div>
+
+                        <div class="quick-card-content">
+                            <strong>Explain something</strong>
+                            <small>Understand a topic clearly and quickly</small>
+                        </div>
+
+                        <span class="quick-card-arrow">
+                            ←
+                        </span>
+
+                    </button>
+
+                    <button
+                        class="quick-card"
+                        data-prompt="Write a clean HTML landing page for a modern website."
+                        type="button"
+                    >
+
+                        <div class="quick-card-icon code">
+                            &lt;/&gt;
+                        </div>
+
+                        <div class="quick-card-content">
+                            <strong>Write code</strong>
+                            <small>Build clean code and project files</small>
+                        </div>
+
+                        <span class="quick-card-arrow">
+                            ←
+                        </span>
+
+                    </button>
+
+                    <button
+                        class="quick-card"
+                        data-prompt="Help me debug this code and explain the problem."
+                        type="button"
+                    >
+
+                        <div class="quick-card-icon debug">
+                            ◈
+                        </div>
+
+                        <div class="quick-card-content">
+                            <strong>Debug code</strong>
+                            <small>Find issues and explain the fix</small>
+                        </div>
+
+                        <span class="quick-card-arrow">
+                            ←
+                        </span>
+
+                    </button>
+
+                </div>
+
+                <div class="welcome-features">
+
+                    <span>
+                        <i>✓</i>
+                        Custom API
+                    </span>
+
+                    <span>
+                        <i>✓</i>
+                        File Upload
+                    </span>
+
+                    <span>
+                        <i>✓</i>
+                        Image Support
+                    </span>
+
+                    <span>
+                        <i>✓</i>
+                        Streaming
+                    </span>
+
+                </div>
+
+            </div>
+
+            <div
+                class="messages"
+                id="messages"
+            ></div>
+
+        </section>
+
+        <section class="composer-wrapper">
+
+            <div
+                class="attachment-preview"
+                id="attachmentPreview"
+            ></div>
+
+            <div class="composer-container">
+
+                <div class="composer-drop-hint">
+                    <span>Drop files here</span>
+                </div>
+
+                <div class="composer">
+
+                    <div class="composer-top">
+
+                        <textarea
+                            id="messageInput"
+                            rows="1"
+                            placeholder="Ask Nova AI anything..."
+                            autocomplete="off"
+                            spellcheck="true"
+                        ></textarea>
+
+                    </div>
+
+                    <div class="composer-bottom">
+
+                        <div class="composer-tools">
+
+                            <button
+                                class="tool-button primary-tool"
+                                id="attachButton"
+                                title="Attach files"
+                                type="button"
+                            >
+                                <span class="tool-icon">＋</span>
+                                <span class="tool-label">Attach</span>
+                            </button>
+
+                            <input
+                                type="file"
+                                id="fileInput"
+                                multiple
+                                hidden
+                            >
+
+                            <button
+                                class="tool-button"
+                                id="clearInputButton"
+                                title="Clear"
+                                type="button"
+                            >
+                                <span class="tool-icon">⌫</span>
+                                <span class="tool-label">Clear</span>
+                            </button>
+
+                        </div>
+
+                        <div class="composer-actions">
+
+                            <span class="input-hint">
+                                Enter to send
+                                <span class="hint-divider"></span>
+                                Shift + Enter for a new line
+                            </span>
+
+                            <button
+                                class="send-button"
+                                id="sendButton"
+                                type="button"
+                                aria-label="Send message"
+                            >
+                                <span id="sendIcon">➤</span>
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="composer-disclaimer">
+
+                <span class="disclaimer-dot"></span>
+
+                AI may make mistakes. Check important information.
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<div
+    class="modal hidden"
+    id="settingsModal"
+>
+
+    <div
+        class="modal-overlay"
+        id="settingsOverlay"
+    ></div>
+
+    <div class="modal-card">
+
+        <div class="modal-header">
+
+            <div class="modal-title">
+
+                <div class="modal-title-icon">
+                    ⚙
+                </div>
+
+                <div>
+                    <h2>Settings</h2>
+                    <p>
+                        Connect any OpenAI-compatible API.
+                    </p>
+                </div>
+
+            </div>
+
+            <button
+                class="icon-button"
+                id="closeSettingsButton"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="settings-content">
+
+            <div class="settings-section">
+
+                <div class="settings-section-title">
+                    <span>API Connection</span>
+                    <small>Connection</small>
+                </div>
+
+                <div class="field-group">
+
+                    <label for="apiUrl">
+                        API URL
+                    </label>
+
+                    <input
+                        id="apiUrl"
+                        type="url"
+                        placeholder="https://api.example.com/v1/chat/completions"
+                        autocomplete="off"
+                    >
+
+                    <small>
+                        OpenAI-compatible Chat Completions endpoint.
+                    </small>
+
+                </div>
+
+                <div class="field-group">
+
+                    <label for="apiKey">
+                        API Key
+                    </label>
+
+                    <div class="password-input">
+
+                        <input
+                            id="apiKey"
+                            type="password"
+                            placeholder="sk-..."
+                            autocomplete="off"
+                        >
+
+                        <button
+                            id="toggleApiKeyButton"
+                            type="button"
+                        >
+                            Show
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <div class="field-group">
+
+                    <label for="modelName">
+                        Model
+                    </label>
+
+                    <input
+                        id="modelName"
+                        type="text"
+                        placeholder="gpt-4o-mini"
+                        autocomplete="off"
+                    >
+
+                </div>
+
+            </div>
+
+            <div class="settings-divider"></div>
+
+            <div class="settings-section">
+
+                <div class="settings-section-title">
+                    <span>AI Behavior</span>
+                    <small>Generation</small>
+                </div>
+
+                <div class="field-group">
+
+                    <label for="systemPrompt">
+                        System Prompt
+                    </label>
+
+                    <textarea
+                        id="systemPrompt"
+                        rows="5"
+                        placeholder="You are a helpful AI assistant."
+                    ></textarea>
+
+                </div>
+
+                <div class="settings-grid">
+
+                    <div class="field-group">
+
+                        <label for="temperature">
+                            Temperature
+                        </label>
+
+                        <input
+                            id="temperature"
+                            type="number"
+                            min="0"
+                            max="2"
+                            step="0.1"
+                        >
+
+                    </div>
+
+                    <div class="field-group">
+
+                        <label for="maxTokens">
+                            Max Tokens
+                        </label>
+
+                        <input
+                            id="maxTokens"
+                            type="number"
+                            min="1"
+                            step="1"
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="settings-info">
+
+                <div class="info-icon">
+                    i
+                </div>
+
+                <div>
+
+                    <strong>
+                        OpenAI-compatible API
+                    </strong>
+
+                    <p>
+                        Use any service that exposes an OpenAI-compatible API by changing the URL, API key, and model.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+
+            <button
+                class="secondary-button"
+                id="resetSettingsButton"
+                type="button"
+            >
+                Reset
+            </button>
+
+            <button
+                class="primary-button"
+                id="saveSettingsButton"
+                type="button"
+            >
+                Save settings
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div
+    class="toast-container"
+    id="toastContainer"
+></div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
